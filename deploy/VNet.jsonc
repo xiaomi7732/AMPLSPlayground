@@ -1,0 +1,60 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "VNetName": {
+            "defaultValue": "AppVNet1",
+            "type": "string"
+        },
+        "location": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "vNet-name": "[parameters('VNetName')]",
+        "location": "[parameters('location')]",
+        "addressPrefixes": [
+            "10.0.0.0/16"
+        ],
+        "subnet1": {
+            "name": "default",
+            "addressPrefix": "10.0.0.0/24"
+        },
+        "subnet2": {
+            "name": "appservice",
+            "addressPrefix": "10.0.1.0/24"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2022-09-01",
+            "name": "[variables('vNet-name')]",
+            "location": "[variables('location')]",
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": "[variables('addressPrefixes')]"
+                },
+                "subnets": [
+                    {
+                        "type": "Microsoft.Network/virtualNetworks/subnets",
+                        "name": "[variables('subnet1').name]",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet-name'), variables('subnet1').name)]",
+                        "properties": {
+                            "addressPrefix": "[variables('subnet1').addressPrefix]"
+                        }
+                    },
+                    {
+                        "type": "Microsoft.Network/virtualNetworks/subnets",
+                        "name": "[variables('subnet2').name]",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet-name'), variables('subnet2').name)]",
+                        "properties": {
+                            "addressPrefix": "[variables('subnet2').addressPrefix]"
+                        }
+                    }
+                ],
+                "enableDdosProtection": false
+            }
+        }
+    ]
+}
