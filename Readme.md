@@ -70,7 +70,6 @@ New-AzResourceGroupDeployment `
     New-AzResourceGroupDeployment `
         -ResourceGroupName $rgName `
         -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/LinkedStorage.jsonc `
-        -location "$location" `
-        -insightsComponentName "$appInsightsComponentName"
+        -insightsComponentName "$appInsightsComponentName" `
         -storageAccountName "$storageName"
     ```
