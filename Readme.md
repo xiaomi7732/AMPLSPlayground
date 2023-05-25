@@ -50,7 +50,7 @@ New-AzResourceGroupDeployment `
 
 ## Deploy a storage for BYOS
 
-* Deploy the storage account
+* Deploy the storage account with Role assignment
 
     ```powershell
     $trustedStorageAppObjectId = (Get-AzADServicePrincipal -DisplayName "Diagnostic Services Trusted Storage Access").id
@@ -64,8 +64,13 @@ New-AzResourceGroupDeployment `
         -diagServicesTrustedStorageAccessPrincipalId "$trustedStorageAppObjectId"
     ```
 
-* Enable BYOS
+* Enable BYOS by update linked storage
 
-    ```
-
+    ```powershell
+    New-AzResourceGroupDeployment `
+        -ResourceGroupName $rgName `
+        -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/LinkedStorage.jsonc `
+        -location "$location" `
+        -insightsComponentName "$appInsightsComponentName"
+        -storageAccountName "$storageName"
     ```
