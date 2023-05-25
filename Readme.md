@@ -81,13 +81,12 @@ New-AzResourceGroupDeployment `
 
     ```powershell
     $appServiceName="saars-ampls-pg8-app-$location"
-    
-    
+
     New-AzResourceGroupDeployment `
         -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/AppService.jsonc `
         -ResourceGroupName $rgName `
         -location "$location" `
         -appServiceName "$appServiceName" `
         -vnetName "$vnetName" `
-        -subnetName "$appServiceSubnetName" `
+        -subnetName "$appServiceSubnetName"
     ```

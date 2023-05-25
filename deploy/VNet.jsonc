@@ -23,7 +23,7 @@
             "name": "default",
             "addressPrefix": "10.0.0.0/24"
         },
-        "subnet2": {
+        "appServiceSubnet": {
             "name": "[parameters('appServiceSubnetName')]",
             "addressPrefix": "10.0.1.0/24"
         }
@@ -49,10 +49,18 @@
                     },
                     {
                         "type": "Microsoft.Network/virtualNetworks/subnets",
-                        "name": "[variables('subnet2').name]",
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet-name'), variables('subnet2').name)]",
+                        "name": "[variables('appServiceSubnet').name]",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet-name'), variables('appServiceSubnet').name)]",
                         "properties": {
-                            "addressPrefix": "[variables('subnet2').addressPrefix]"
+                            "addressPrefix": "[variables('appServiceSubnet').addressPrefix]",
+                            "delegations": [
+                                {
+                                    "name": "delegation",
+                                    "properties": {
+                                        "serviceName": "Microsoft.Web/serverFarms"
+                                    }
+                                }
+                            ]
                         }
                     }
                 ],
