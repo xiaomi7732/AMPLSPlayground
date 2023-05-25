@@ -60,7 +60,7 @@ New-AzResourceGroupDeployment `
         -ResourceGroupName $rgName `
         -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/Storage.jsonc `
         -nameFromTemplate "$storageName" `
-        -location "$location",
+        -location "$location" `
         -diagServicesTrustedStorageAccessPrincipalId "$trustedStorageAppObjectId"
     ```
 
