@@ -47,3 +47,15 @@ New-AzResourceGroupDeployment `
     -location $location `
     -appInsightsName $appInsightsComponentName
 ```
+
+## Deploy a storage for BYOS
+
+```powershell
+$storageName="saarsamplspg8sa$location"
+
+New-AzResourceGroupDeployment `
+    -ResourceGroupName $rgName `
+    -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/Storage.jsonc `
+    -name "$storageName" `
+    -location "$location"
+```
