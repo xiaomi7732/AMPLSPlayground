@@ -8,7 +8,7 @@
         "vnetName": {
             "type": "string"
         },
-        "subnetName": {
+        "vnetIntegrationSubnetName": {
             "type": "string"
         },
         "location": {
@@ -17,13 +17,22 @@
         "container": {
             "type": "string",
             "defaultValue": "DOCKER|saarsdevhub.azurecr.io/epprofilernet6container:daf225de2daae0af77f7d3ce6f26a355c3d6350b"
+        },
+        "privateLinkEndpointSubnetName": {
+            "type": "string"
         }
     },
     "variables": {
         "appServiceFarmName": "[concat(parameters('appServiceName'),'-plan')]",
         "vnetIntegration": {
             "vnetName": "[parameters('vnetName')]",
-            "subnetName": "[parameters('subnetName')]"
+            "subnetName": "[parameters('vnetIntegrationSubnetName')]"
+        },
+        "privateLinkEndpoint": {
+            "name": "[format('{0}-ple', parameters('appServiceName'))]",
+            "vnetName": "[parameters('vnetName')]",
+            "subnetName": "[parameters('privateLinkEndpointSubnetName')]",
+            "dnsZoneName": "privatelink.azurewebsites.net"
         }
     },
     "resources": [
@@ -136,6 +145,73 @@
                 "functionsRuntimeScaleMonitoringEnabled": false,
                 "minimumElasticInstanceCount": 0,
                 "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2020-06-01",
+            "name": "[variables('privateLinkEndpoint').name]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('appServiceName'))]"
+            ],
+            "properties": {
+                "subnet": {
+                    "id": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Network/virtualNetworks/subnets', variables('privateLinkEndpoint').vnetName, variables('privateLinkEndpoint').subnetName)]"
+                },
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[variables('privateLinkEndpoint').name]",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', parameters('appServiceName'))]",
+                            "groupIds": [
+                                "sites"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2020-06-01",
+            "name": "[variables('privateLinkEndpoint').dnsZoneName]",
+            "location": "global",
+            "properties": ""
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(variables('privateLinkEndpoint').dnsZoneName, '/', variables('privateLinkEndpoint').dnsZoneName, '-link')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateLinkEndpoint').dnsZoneName)]"
+            ],
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Network/virtualNetworks', variables('privateLinkEndpoint').vnetName)]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2020-03-01",
+            "name": "[concat(variables('privateLinkEndpoint').name,'/dnsgroupname')]",
+            "location": "[parameters('location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateLinkEndpoint').dnsZoneName)]",
+                "[resourceId('Microsoft.Network/privateEndpoints' ,variables('privateLinkEndpoint').name)]"
+            ],
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "config1",
+                        "properties": {
+                            "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateLinkEndpoint').dnsZoneName)]"
+                        }
+                    }
+                ]
             }
         }
     ]

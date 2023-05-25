@@ -28,13 +28,15 @@ New-AzResourceGroup -Name "$rgName" -Location "$location"
 ```powershell
 $vnetName="AppVNet1"
 $appServiceSubnetName="appservice"
+$defaultSubnetName="default"
 
 New-AzResourceGroupDeployment `
     -ResourceGroupName $rgName `
     -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/VNet.jsonc `
     -VNetName $vnetName `
     -location $location `
-    -appServiceSubnetName "$appServiceSubnetName"
+    -appServiceSubnetName "$appServiceSubnetName" `
+    -defaultSubnetName "$defaultSubnetName"
 ```
 
 ## Deploy Application Insights
@@ -88,5 +90,6 @@ New-AzResourceGroupDeployment `
         -location "$location" `
         -appServiceName "$appServiceName" `
         -vnetName "$vnetName" `
-        -subnetName "$appServiceSubnetName"
+        -vnetIntegrationSubnetName "$appServiceSubnetName" `
+        -privateLinkEndpointSubnetName "$defaultSubnetName"
     ```
