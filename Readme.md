@@ -27,11 +27,14 @@ New-AzResourceGroup -Name "$rgName" -Location "$location"
 
 ```powershell
 $vnetName="AppVNet1"
+$appServiceSubnetName="appservice"
+
 New-AzResourceGroupDeployment `
     -ResourceGroupName $rgName `
     -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/VNet.jsonc `
     -VNetName $vnetName `
-    -location $location
+    -location $location `
+    -appServiceSubnetName "$appServiceSubnetName"
 ```
 
 ## Deploy Application Insights
@@ -72,4 +75,19 @@ New-AzResourceGroupDeployment `
         -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/LinkedStorage.jsonc `
         -insightsComponentName "$appInsightsComponentName" `
         -storageAccountName "$storageName"
+    ```
+
+* Deploy App Service with VNet integration
+
+    ```powershell
+    $appServiceName="saars-ampls-pg8-app-$location"
+    
+    
+    New-AzResourceGroupDeployment `
+        -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/AppService.jsonc `
+        -ResourceGroupName $rgName `
+        -location "$location" `
+        -appServiceName "$appServiceName" `
+        -vnetName "$vnetName" `
+        -subnetName "$appServiceSubnetName" `
     ```

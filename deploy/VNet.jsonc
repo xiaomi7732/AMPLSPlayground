@@ -8,6 +8,9 @@
         },
         "location": {
             "type": "string"
+        },
+        "appServiceSubnetName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -21,7 +24,7 @@
             "addressPrefix": "10.0.0.0/24"
         },
         "subnet2": {
-            "name": "appservice",
+            "name": "[parameters('appServiceSubnetName')]",
             "addressPrefix": "10.0.1.0/24"
         }
     },
