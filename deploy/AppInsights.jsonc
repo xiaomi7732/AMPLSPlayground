@@ -1,0 +1,105 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      // Name of the workspace.
+      "type": "string"
+    },
+    "sku": {
+      "type": "string",
+      "allowedValues": [
+        "pergb2018",
+        "Free",
+        "Standalone",
+        "PerNode",
+        "Standard",
+        "Premium"
+      ],
+      "defaultValue": "pergb2018",
+      "metadata": {
+        "description": "Pricing tier: PerGB2018 or legacy tiers (Free, Standalone, PerNode, Standard or Premium) which are not available to all customers."
+      }
+    },
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the location for the workspace."
+      }
+    },
+    "retentionInDays": {
+      "type": "int",
+      "defaultValue": 30,
+      "metadata": {
+        "description": "Number of days to retain data."
+      }
+    },
+    "resourcePermissions": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "true to use resource or workspace permissions. false to require workspace permissions."
+      }
+    },
+    "heartbeatTableRetention": {
+      "type": "int",
+      "defaultValue": 5,
+      "metadata": {
+        "description": "Number of days to retain data in Heartbeat table."
+      }
+    },
+    "appInsightsName": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "appInsights":{
+      "kind": "web",
+      "name": "[parameters('appInsightsName')]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "name": "[parameters('workspaceName')]",
+      "apiVersion": "2020-08-01",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "[parameters('sku')]"
+        },
+        "retentionInDays": "[parameters('retentionInDays')]",
+        "features": {
+          "enableLogAccessUsingOnlyResourcePermissions": "[parameters('resourcePermissions')]"
+        }
+      },
+      "resources": [
+        {
+          "type": "Microsoft.OperationalInsights/workspaces/tables",
+          "apiVersion": "2020-08-01",
+          "name": "[concat(parameters('workspaceName'),'/','Heartbeat')]",
+          "dependsOn": [
+            "[parameters('workspaceName')]"
+          ],
+          "properties": {
+            "RetentionInDays": "[parameters('heartbeatTableRetention')]"
+          }
+        }
+      ]
+    },
+    {
+      "type": "microsoft.insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "kind": "[variables('appInsights').kind]",
+      "name": "[variables('appInsights').name]",
+      "dependsOn": [
+        "[parameters('workspaceName')]"
+      ],
+      "location": "[parameters('location')]",
+      "properties": {
+        "Application_Type": "web",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('workspaceName'))]"
+      }
+    }
+  ]
+}

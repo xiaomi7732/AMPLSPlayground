@@ -28,6 +28,22 @@ New-AzResourceGroup -Name "$rgName" -Location "$location"
 ```powershell
 $vnetName="AppVNet1"
 New-AzResourceGroupDeployment `
+    -ResourceGroupName $rgName `
+    -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/VNet.jsonc `
     -VNetName $vnetName `
     -location $location
+```
+
+## Deploy Application Insights
+
+```powershell
+$logAnalyticsName="saars-ampls-pg8-la-$location"
+$appInsightsComponentName="saars-ampls-pg8-ai-$location"
+
+New-AzResourceGroupDeployment `
+    -ResourceGroupName $rgName `
+    -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/AppInsights.jsonc `
+    -workspaceName $logAnalyticsName `
+    -location $location `
+    -appInsightsName $appInsightsComponentName
 ```
