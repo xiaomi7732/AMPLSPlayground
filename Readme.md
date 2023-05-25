@@ -50,12 +50,22 @@ New-AzResourceGroupDeployment `
 
 ## Deploy a storage for BYOS
 
-```powershell
-$storageName="saarsamplspg8sa$location"
+* Deploy the storage account
 
-New-AzResourceGroupDeployment `
-    -ResourceGroupName $rgName `
-    -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/Storage.jsonc `
-    -nameFromTemplate "$storageName" `
-    -location "$location"
-```
+    ```powershell
+    $trustedStorageAppObjectId = (Get-AzADServicePrincipal -DisplayName "Diagnostic Services Trusted Storage Access").id
+    $storageName="saarsamplspg8sa$location"
+
+    New-AzResourceGroupDeployment `
+        -ResourceGroupName $rgName `
+        -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/Storage.jsonc `
+        -nameFromTemplate "$storageName" `
+        -location "$location",
+        -diagServicesTrustedStorageAccessPrincipalId "$trustedStorageAppObjectId"
+    ```
+
+* Enable BYOS
+
+    ```
+
+    ```

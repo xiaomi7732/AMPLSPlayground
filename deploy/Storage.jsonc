@@ -7,14 +7,20 @@
         },
         "location": {
             "type": "string"
+        },
+        "diagServicesTrustedStorageAccessPrincipalId": {
+            "type": "string"
         }
     },
     "variables": {
-        "sku":{
+        "name": "[parameters('name')]",
+        "sku": {
             "name": "Standard_LRS",
             "tier": "Standard"
         },
-        "kind": "StorageV2"
+        "kind": "StorageV2",
+        "principalId": "[parameters('diagServicesTrustedStorageAccessPrincipalId')]",
+        "blobDataContributorId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
     },
     "resources": [
         {
@@ -90,6 +96,19 @@
                     "days": 1
                 },
                 "isVersioningEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(variables('name'), resourceGroup().name, variables('blobDataContributorId'), variables('principalId'))]",
+            "scope": "[concat('Microsoft.Storage/storageAccounts', '/', variables('name'))]",
+            "dependsOn": [
+                "[variables('name')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[variables('blobDataContributorId')]",
+                "principalId": "[variables('principalId')]"
             }
         }
     ]
