@@ -106,3 +106,18 @@ New-AzResourceGroupDeployment `
         -workspaceName "$logAnalyticsName" `
         -aiComponentName "$appInsightsComponentName"
     ```
+
+* Deploy Private Link Endpoint for the AMPLS
+
+    ```powershell
+    $privateLinkEndpointName="saars-ampls-pg8-scope-eastus-ple"
+    
+    New-AzResourceGroupDeployment `
+        -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/AMPLSPLEndpoint.jsonc `
+        -ResourceGroupName "$rgName" `
+        -location "$location" `
+        -privateEndpointName "$privateLinkEndpointName" `
+        -amplsScopeName "$amplsName" `
+        -vnetName "$vnetName" `
+        -plSubnetName "$defaultSubnetName"
+    ```
