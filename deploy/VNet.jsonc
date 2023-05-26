@@ -50,7 +50,12 @@
                         "properties": {
                             "addressPrefix": "[variables('defaultSubnet').addressPrefix]",
                             "serviceEndpoints": [
-                                "Microsoft.Storage.Global"
+                                {
+                                    "service": "Microsoft.Storage.Global",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
                             ]
                         }
                     },
@@ -69,7 +74,12 @@
                                 }
                             ],
                             "serviceEndpoints": [
-                                "Microsoft.Storage.Global"
+                                {
+                                    "service": "Microsoft.Storage.Global",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
                             ]
                         }
                     }

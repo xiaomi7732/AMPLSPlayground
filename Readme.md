@@ -66,7 +66,10 @@ New-AzResourceGroupDeployment `
         -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/Storage.jsonc `
         -nameFromTemplate "$storageName" `
         -location "$location" `
-        -diagServicesTrustedStorageAccessPrincipalId "$trustedStorageAppObjectId"
+        -diagServicesTrustedStorageAccessPrincipalId "$trustedStorageAppObjectId" `
+        -vnetName "$vnetName" `
+        -appServiceSubnetName "$appServiceSubnetName" `
+        -defaultSubnetName "$defaultSubnetName"
     ```
 
 * Enable BYOS by update linked storage
@@ -120,4 +123,21 @@ New-AzResourceGroupDeployment `
         -amplsScopeName "$amplsName" `
         -vnetName "$vnetName" `
         -plSubnetName "$defaultSubnetName"
+    ```
+
+* Only if you want full private traffic, deploy Private Link Endpoint for BYOS storage
+
+    ⚠️ DNS Zone for blob storage is reused from AMPLS configurations.
+
+    ```powershell
+    $storageEndpointName="saars-ampls-pg8-storage-eastus-ple"
+
+    New-AzResourceGroupDeployment `
+        -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/StorageEndpoint.jsonc `
+        -ResourceGroupName "$rgName" `
+        -location "$location" `
+        -privateEndpointName "$storageEndpointName" `
+        -storageAccountName "$storageName" `
+        -vnetName "$vnetName" `
+        -subnetName "$defaultSubnetName"
     ```

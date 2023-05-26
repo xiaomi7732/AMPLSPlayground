@@ -10,6 +10,15 @@
         },
         "diagServicesTrustedStorageAccessPrincipalId": {
             "type": "string"
+        },
+        "vnetName": {
+            "type": "string"
+        },
+        "appServiceSubnetName": {
+            "type": "string"
+        },
+        "defaultSubnetName": {
+            "type": "string"
         }
     },
     "variables": {
@@ -20,7 +29,9 @@
         },
         "kind": "StorageV2",
         "principalId": "[parameters('diagServicesTrustedStorageAccessPrincipalId')]",
-        "blobDataContributorId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]"
+        "blobDataContributorId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+        "appserviceSubnetResourceId": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('appServiceSubnetName'))]",
+        "defaultSubnetResourceId": "[resourceId(subscription().subscriptionId, resourceGroup().name,'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('defaultSubnetName'))]"
     },
     "resources": [
         {
@@ -43,9 +54,18 @@
                 "allowSharedKeyAccess": true,
                 "networkAcls": {
                     "bypass": "AzureServices",
-                    "virtualNetworkRules": [],
+                    "virtualNetworkRules": [
+                        {
+                            "id": "[variables('appserviceSubnetResourceId')]",
+                            "action": "Allow"
+                        },
+                        {
+                            "id": "[variables('defaultSubnetResourceId')]",
+                            "action": "Allow"
+                        }
+                    ],
                     "ipRules": [],
-                    "defaultAction": "Allow"
+                    "defaultAction": "Deny"
                 },
                 "supportsHttpsTrafficOnly": true,
                 "encryption": {

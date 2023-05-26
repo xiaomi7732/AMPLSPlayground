@@ -1,0 +1,77 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "privateEndpointName": {
+            "type": "string"
+        },
+        "storageAccountName": {
+            "type": "string"
+        },
+        "vnetName": {
+            "type": "string"
+        },
+        "subnetName": {
+            "type": "string"
+        },
+        "privateDNSZoneName": {
+            "type": "string",
+            "defaultValue": "privatelink.blob.core.windows.net"
+        }
+    },
+    "variables": {
+        "storageResrouceId": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]",
+        "subResource": [
+            "blob"
+        ],
+        "subnetResourceId": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]",
+        "dnsZoneGroupName": "default",
+        "privateDnsZoneId": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Network/privateDnsZones', parameters('privateDNSZoneName'))]",
+        "privateDnsZoneConfigureName": "[replace(parameters('privateDNSZoneName'), '.', '-')]"
+    },
+    "resources": [
+        {
+            "location": "[parameters('location')]",
+            "name": "[parameters('privateEndpointName')]",
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2021-05-01",
+            "properties": {
+                "subnet": {
+                    "id": "[variables('subnetResourceId')]"
+                },
+                "customNetworkInterfaceName": "[concat(parameters('privateEndpointName'), '-nic')]",
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[parameters('privateEndpointName')]",
+                        "properties": {
+                            "privateLinkServiceId": "[variables('storageResrouceId')]",
+                            "groupIds": "[variables('subResource')]"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+            "apiVersion": "2021-05-01",
+            "name": "[concat(parameters('privateEndpointName'), '/', variables('dnsZoneGroupName'))]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "privateDnsZoneConfigs": [
+                    {
+                        "name": "[variables('privateDnsZoneConfigureName')]",
+                        "properties": {
+                            "privateDnsZoneId": "[variables('privateDnsZoneId')]"
+                        }
+                    }
+                ]
+            },
+            "dependsOn": [
+                "[parameters('privateEndpointName')]"
+            ]
+        }
+    ]
+}
