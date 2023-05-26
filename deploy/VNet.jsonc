@@ -12,7 +12,7 @@
         "appServiceSubnetName": {
             "type": "string"
         },
-        "defualtSubnetName": {
+        "defaultSubnetName": {
             "defaultValue": "default",
             "type": "string"
         }
@@ -24,7 +24,7 @@
             "10.0.0.0/16"
         ],
         "defaultSubnet": {
-            "name": "[parameters('defualtSubnetName')]",
+            "name": "[parameters('defaultSubnetName')]",
             "addressPrefix": "10.0.0.0/24"
         },
         "appServiceSubnet": {
