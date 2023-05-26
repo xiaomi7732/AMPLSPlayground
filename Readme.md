@@ -93,3 +93,16 @@ New-AzResourceGroupDeployment `
         -vnetIntegrationSubnetName "$appServiceSubnetName" `
         -privateLinkEndpointSubnetName "$defaultSubnetName"
     ```
+
+* Deploy AMPLS to link to the component and the workspace
+
+    ```powershell
+    $amplsName="saars-ampls-pg8-scope"
+
+    New-AzResourceGroupDeployment `
+        -TemplateUri https://raw.githubusercontent.com/xiaomi7732/AMPLSPlayground/main/deploy/AMPLS.jsonc `
+        -ResourceGroupName "$rgName" `
+        -amplsName "$amplsName" `
+        -workspaceName "$logAnalyticsName" `
+        -aiComponentName "$appInsightsComponentName"
+    ```

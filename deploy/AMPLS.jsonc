@@ -1,0 +1,57 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "amplsName": {
+            "type": "String"
+        },
+        "workspaceName": {
+            "type": "String"
+        },
+        "aiComponentName": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "queryAccessMode": "Open",
+        "ingestionAccessMode": "Open"
+    },
+    "resources": [
+        {
+            "type": "microsoft.insights/privatelinkscopes",
+            "apiVersion": "2021-07-01-preview",
+            "name": "[parameters('amplsName')]",
+            "location": "global",
+            "properties": {
+                "accessModeSettings": {
+                    "queryAccessMode": "[variables('queryAccessMode')]",
+                    "ingestionAccessMode": "[variables('ingestionAccessMode')]"
+                }
+            }
+        },
+        // Link to LA workspace
+        {
+            "type": "microsoft.insights/privatelinkscopes/scopedresources",
+            "apiVersion": "2021-07-01-preview",
+            "name": "[concat(parameters('amplsName'), '/', concat(parameters('workspaceName'), '-connection'))]",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/privatelinkscopes', parameters('amplsName'))]"
+            ],
+            "properties": {
+                "linkedResourceId": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'microsoft.operationalinsights/workspaces', parameters('workspaceName'))]"
+            }
+        },
+        // Link to ai component
+        {
+            "type": "microsoft.insights/privatelinkscopes/scopedresources",
+            "apiVersion": "2021-07-01-preview",
+            "name": "[concat(parameters('amplsName'), '/', concat(parameters('aiComponentName'), '-connection'))]",
+            "dependsOn": [
+                "[resourceId('microsoft.insights/privatelinkscopes', parameters('amplsName'))]"
+            ],
+            "properties": {
+                "linkedResourceId": "[resourceId(subscription().subscriptionId, resourceGroup().name, 'microsoft.insights/components', parameters('aiComponentName'))]"
+            }
+        }
+    ]
+}
