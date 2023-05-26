@@ -23,7 +23,7 @@
         "addressPrefixes": [
             "10.0.0.0/16"
         ],
-        "subnet1": {
+        "defaultSubnet": {
             "name": "[parameters('defualtSubnetName')]",
             "addressPrefix": "10.0.0.0/24"
         },
@@ -45,10 +45,13 @@
                 "subnets": [
                     {
                         "type": "Microsoft.Network/virtualNetworks/subnets",
-                        "name": "[variables('subnet1').name]",
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet-name'), variables('subnet1').name)]",
+                        "name": "[variables('defaultSubnet').name]",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNet-name'), variables('defaultSubnet').name)]",
                         "properties": {
-                            "addressPrefix": "[variables('subnet1').addressPrefix]"
+                            "addressPrefix": "[variables('defaultSubnet').addressPrefix]",
+                            "serviceEndpoints": [
+                                "Microsoft.Storage.Global"
+                            ]
                         }
                     },
                     {
@@ -64,6 +67,9 @@
                                         "serviceName": "Microsoft.Web/serverFarms"
                                     }
                                 }
+                            ],
+                            "serviceEndpoints": [
+                                "Microsoft.Storage.Global"
                             ]
                         }
                     }
