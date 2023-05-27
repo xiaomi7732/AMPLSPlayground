@@ -133,6 +133,7 @@ New-AzResourceGroupDeployment `
 
 * Some manual steps currently needed
     * Somehow, the linked storage was overwritten in the application insights component. Add it back by running `Enable BYOS by update linked storage` step again.
+        * To check the link, use resource explorer: https://resources.azure.com/
     * By default, the access mode for AMPLS is Open/Open. Change to:
         * Ingestion access mode: Private Only
         * Query access mode: Open
